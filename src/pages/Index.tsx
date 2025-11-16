@@ -14,7 +14,7 @@ import { User } from "@supabase/supabase-js";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true); // ДОБАВЛЕНО
+  const [loading, setLoading] = useState(true);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState("google/gemini-2.5-flash");
   const [deepThinking, setDeepThinking] = useState(false);
@@ -25,8 +25,12 @@ const Index = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   
+  console.log("Index render - user:", user, "loading:", loading); // ДОБАВЛЕНО
+
   const { chats, loading: chatsLoading, createChat, deleteChat, renameChat } = useChats(user?.id);
   const { messages, loading: messagesLoading, addMessage, setMessages } = useMessages(currentChatId);
+
+  console.log("Index render - chats:", chats, "messages:", messages); // ДОБАВЛЕНО
 
   const { streamChat } = useAIChat({
     onDelta: (text) => {
@@ -45,10 +49,11 @@ const Index = () => {
 
   // Check auth state
   useEffect(() => {
+    console.log("Auth useEffect running"); // ДОБАВЛЕНО
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("Session:", session); // ДОБАВЛЕНО ДЛЯ ОТЛАДКИ
+      console.log("getSession result:", session); // ДОБАВЛЕНО
       setUser(session?.user ?? null);
-      setLoading(false); // ДОБАВЛЕНО
+      setLoading(false);
       if (!session?.user) {
         console.log("No user, redirecting to auth");
         navigate("/auth");
@@ -56,9 +61,9 @@ const Index = () => {
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state change:", event, session); // ДОБАВЛЕНО ДЛЯ ОТЛАДКИ
+      console.log("Auth state change:", event, session);
       setUser(session?.user ?? null);
-      if (!session?.user) {
+      if (!session?.user && event !== 'INITIAL_SESSION') {
         navigate("/auth");
       }
     });
@@ -66,8 +71,8 @@ const Index = () => {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // ДОБАВЛЕНО: Показываем загрузку пока проверяется авторизация
   if (loading) {
+    console.log("Rendering loading state"); // ДОБАВЛЕНО
     return (
       <div className="flex h-screen w-full bg-background items-center justify-center">
         <div className="text-center">
@@ -78,8 +83,8 @@ const Index = () => {
     );
   }
 
-  // ДОБАВЛЕНО: Если нет пользователя, но загрузка завершена
   if (!user) {
+    console.log("Rendering no user state"); // ДОБАВЛЕНО
     return (
       <div className="flex h-screen w-full bg-background items-center justify-center">
         <div className="text-center">
@@ -88,6 +93,8 @@ const Index = () => {
       </div>
     );
   }
+
+  console.log("Rendering main app - user:", user.email); // ДОБАВЛЕНО
 
   const handleStartChat = async (message: string) => {
     if (!user) return;
@@ -150,6 +157,8 @@ const Index = () => {
 
   const showWelcome = !currentChatId && messages.length === 0;
   const currentChat = chats.find((c) => c.id === currentChatId);
+
+  console.log("Rendering chat UI - showWelcome:", showWelcome, "currentChat:", currentChat); // ДОБАВЛЕНО
 
   return (
     <div className="flex h-screen w-full bg-background">
