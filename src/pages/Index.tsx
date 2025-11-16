@@ -164,7 +164,10 @@ const Index = () => {
             className="absolute inset-0 bg-black/50"
             onClick={() => setIsSidebarOpen(false)}
           />
-          <div className="absolute left-0 top-0 bottom-0 w-80 max-w-full bg-white">
+          <div 
+            className="absolute left-0 top-0 bottom-0 w-80 max-w-full bg-sidebar-background"
+            style={{ backgroundColor: 'white' }}
+          >
             <ChatSidebar
               chats={chats}
               currentChatId={currentChatId}
