@@ -35,7 +35,7 @@ export default function GoodFaceCallback() {
             body: new URLSearchParams({
               grant_type: "authorization_code",
               code: code,
-              redirect_uri: window.location.origin + "/goodface-callback",
+              redirect_uri: window.location.origin + "/#/goodface-callback",
               client_id:
                 "12566d9ce28b060e1fb61a8f1c51b121e3e855c8810b217101d9b6668cc979a5",
               client_secret:
