@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { ChatSidebar } from "@/components/ChatSidebar";
 import { ChatHeader } from "@/components/ChatHeader";
 import { MessageList } from "@/components/MessageList";
 import { InputPanel } from "@/components/InputPanel";
@@ -138,22 +139,16 @@ const Index = () => {
 
   return (
     <div className="flex h-screen w-full bg-background">
-      {/* УБРАН ChatSidebar */}
-      <div className="w-64 bg-sidebar-background p-4 border-r">
-        <h2 className="text-lg font-bold mb-4">Чаты</h2>
-        <button 
-          onClick={handleNewChat}
-          className="w-full bg-primary text-white p-2 rounded mb-4"
-        >
-          Новый чат
-        </button>
-        <button 
-          onClick={handleSignOut}
-          className="w-full bg-red-500 text-white p-2 rounded"
-        >
-          Выйти
-        </button>
-      </div>
+      <ChatSidebar
+        chats={chats}
+        currentChatId={currentChatId}
+        onNewChat={handleNewChat}
+        onSelectChat={handleSelectChat}
+        onDeleteChat={handleDeleteChat}
+        onRenameChat={renameChat}
+        user={user}
+        onSignOut={handleSignOut}
+      />
 
       <div className="flex-1 flex flex-col min-w-0">
         {!showWelcome && (
