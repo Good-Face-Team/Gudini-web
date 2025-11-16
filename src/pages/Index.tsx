@@ -14,6 +14,7 @@ import { User } from "@supabase/supabase-js";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true); // ДОБАВЛЕНО
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
   const [selectedModel, setSelectedModel] = useState("google/gemini-2.5-flash");
   const [deepThinking, setDeepThinking] = useState(false);
@@ -45,13 +46,17 @@ const Index = () => {
   // Check auth state
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
+      console.log("Session:", session); // ДОБАВЛЕНО ДЛЯ ОТЛАДКИ
       setUser(session?.user ?? null);
+      setLoading(false); // ДОБАВЛЕНО
       if (!session?.user) {
+        console.log("No user, redirecting to auth");
         navigate("/auth");
       }
     });
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state change:", event, session); // ДОБАВЛЕНО ДЛЯ ОТЛАДКИ
       setUser(session?.user ?? null);
       if (!session?.user) {
         navigate("/auth");
@@ -60,6 +65,29 @@ const Index = () => {
 
     return () => subscription.unsubscribe();
   }, [navigate]);
+
+  // ДОБАВЛЕНО: Показываем загрузку пока проверяется авторизация
+  if (loading) {
+    return (
+      <div className="flex h-screen w-full bg-background items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Проверка авторизации...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // ДОБАВЛЕНО: Если нет пользователя, но загрузка завершена
+  if (!user) {
+    return (
+      <div className="flex h-screen w-full bg-background items-center justify-center">
+        <div className="text-center">
+          <p className="text-muted-foreground">Перенаправление на страницу входа...</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleStartChat = async (message: string) => {
     if (!user) return;
@@ -119,10 +147,6 @@ const Index = () => {
     await supabase.auth.signOut();
     navigate("/auth");
   };
-
-  if (!user) {
-    return null;
-  }
 
   const showWelcome = !currentChatId && messages.length === 0;
   const currentChat = chats.find((c) => c.id === currentChatId);
