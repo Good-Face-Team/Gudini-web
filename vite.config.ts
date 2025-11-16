@@ -15,5 +15,13 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: '/Gudini-web/', // ← ДОБАВЬ ЭТУ СТРОЧКУ
+  base: '/Gudini-web/',
+  build: {
+    outDir: 'dist',
+    rollupOptions: {
+      input: {
+        main: './index.html'
+      }
+    }
+  }
 }));
