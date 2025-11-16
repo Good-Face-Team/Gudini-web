@@ -6,29 +6,16 @@
     <title>Gudini - AI Chat Assistant</title>
     <meta name="description" content="Продвинутый веб-интерфейс для общения с искусственным интеллектом от Good Face Team" />
     <meta name="author" content="Good Face Team" />
-
     <meta property="og:title" content="Gudini - AI Chat Assistant" />
     <meta property="og:description" content="Продвинутый веб-интерфейс для общения с искусственным интеллектом" />
     <meta property="og:type" content="website" />
     <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@GudiniAI" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
   </head>
-
   <body>
     <div id="root"></div>
-    <script>
-      // Fix for CSSStyleDeclaration issue
-      if (typeof CSSStyleDeclaration !== 'undefined') {
-        Object.defineProperty(CSSStyleDeclaration.prototype, '0', {
-          get() { return this.cssText; },
-          set(value) { this.cssText = value; },
-          configurable: true
-        });
-      }
-    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
