@@ -15,13 +15,5 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  base: '/Gudini-web/',
-  build: {
-    outDir: 'dist',
-    rollupOptions: {
-      input: {
-        main: './index.html'
-      }
-    }
-  }
+  base: '/Gudini-web/', // Оставляем это!
 }));
