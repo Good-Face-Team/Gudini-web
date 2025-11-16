@@ -100,19 +100,6 @@ export function InputPanel({
               </Label>
             </div>
           </div>
-
-          <Select value={selectedModel} onValueChange={onModelChange}>
-            <SelectTrigger className="w-[180px] h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {AI_MODELS.map((model) => (
-                <SelectItem key={model.id} value={model.id}>
-                  {model.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
         </div>
 
         {/* Input Row */}
