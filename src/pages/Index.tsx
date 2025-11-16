@@ -21,6 +21,7 @@ const Index = () => {
   const [webSearch, setWebSearch] = useState(false);
   const [streamingContent, setStreamingContent] = useState("");
   const [isStreaming, setIsStreaming] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -63,6 +64,7 @@ const Index = () => {
     
     if (newChat) {
       setCurrentChatId(newChat.id);
+      setIsSidebarOpen(false); // Закрываем сайдбар на мобильных
       await handleSendMessage(message, newChat.id);
     }
   };
@@ -89,10 +91,12 @@ const Index = () => {
   const handleNewChat = () => {
     setCurrentChatId(null);
     setMessages([]);
+    setIsSidebarOpen(false); // Закрываем сайдбар на мобильных
   };
 
   const handleSelectChat = (chatId: string) => {
     setCurrentChatId(chatId);
+    setIsSidebarOpen(false); // Закрываем сайдбар на мобильных
   };
 
   const handleDeleteChat = async (chatId: string) => {
@@ -139,26 +143,54 @@ const Index = () => {
 
   return (
     <div className="flex h-screen w-full bg-background">
-      <ChatSidebar
-        chats={chats}
-        currentChatId={currentChatId}
-        onNewChat={handleNewChat}
-        onSelectChat={handleSelectChat}
-        onDeleteChat={handleDeleteChat}
-        onRenameChat={renameChat}
-        user={user}
-        onSignOut={handleSignOut}
-      />
+      {/* Сайдбар для десктопа */}
+      <div className={`hidden lg:block ${isSidebarOpen ? 'block' : 'hidden'} lg:relative`}>
+        <ChatSidebar
+          chats={chats}
+          currentChatId={currentChatId}
+          onNewChat={handleNewChat}
+          onSelectChat={handleSelectChat}
+          onDeleteChat={handleDeleteChat}
+          onRenameChat={renameChat}
+          user={user}
+          onSignOut={handleSignOut}
+        />
+      </div>
+
+      {/* Мобильный сайдбар */}
+      {isSidebarOpen && (
+        <div className="fixed inset-0 z-50 lg:hidden">
+          <div 
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+          <div className="absolute left-0 top-0 bottom-0 w-80 max-w-full bg-sidebar-background">
+            <ChatSidebar
+              chats={chats}
+              currentChatId={currentChatId}
+              onNewChat={handleNewChat}
+              onSelectChat={handleSelectChat}
+              onDeleteChat={handleDeleteChat}
+              onRenameChat={renameChat}
+              user={user}
+              onSignOut={handleSignOut}
+            />
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 flex flex-col min-w-0">
-        {!showWelcome && (
-          <>
-            <ChatHeader
-              chatTitle={currentChat?.title || "Новый чат"}
-              selectedModel={selectedModel}
-              onClearChat={handleClearChat}
-            />
+        <ChatHeader
+          chatTitle={currentChat?.title || "Новый чат"}
+          selectedModel={selectedModel}
+          onClearChat={handleClearChat}
+          onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+          onNewChat={handleNewChat}
+          showMobileControls={true}
+        />
 
+        {!showWelcome ? (
+          <>
             <MessageList
               messages={messages}
               isLoading={isStreaming}
@@ -176,9 +208,9 @@ const Index = () => {
               onWebSearchChange={setWebSearch}
             />
           </>
+        ) : (
+          <WelcomeScreen onStartChat={handleStartChat} />
         )}
-
-        {showWelcome && <WelcomeScreen onStartChat={handleStartChat} />}
       </div>
     </div>
   );
