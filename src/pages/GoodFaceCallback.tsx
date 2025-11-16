@@ -37,9 +37,9 @@ export default function GoodFaceCallback() {
               code: code,
               redirect_uri: window.location.origin + "/goodface-callback",
               client_id:
-                "1d25308a7b6e62c731c16f20e14743469d77ce93dc713d51fc22f9a05d55b664",
+                "12566d9ce28b060e1fb61a8f1c51b121e3e855c8810b217101d9b6668cc979a5",
               client_secret:
-                "0d9d5e909d4c0f72f098b6cd2494e51014e9cd40308297eafe388f394ffa9c09",
+                "495c3f7564d1fe39ee64ab24d003843b588551803f080d902d2d90707903ec82",
             }),
           }
         );
