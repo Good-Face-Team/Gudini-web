@@ -78,7 +78,7 @@ export function ChatSidebar({
       </div>
 
       {/* Chat List */}
-      <ScrollArea className="flex-1">
+      <ScrollArea className="flex-1" style="display: block;">
         <div className="p-2 space-y-1">
           {filteredChats.map((chat, index) => (
             <button
