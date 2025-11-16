@@ -19,6 +19,16 @@
 
   <body>
     <div id="root"></div>
+    <script>
+      // Fix for CSSStyleDeclaration issue
+      if (typeof CSSStyleDeclaration !== 'undefined') {
+        Object.defineProperty(CSSStyleDeclaration.prototype, '0', {
+          get() { return this.cssText; },
+          set(value) { this.cssText = value; },
+          configurable: true
+        });
+      }
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
