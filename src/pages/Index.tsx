@@ -1,78 +1,24 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { ChatSidebar } from "@/components/ChatSidebar";
-import { ChatHeader } from "@/components/ChatHeader";
-import { MessageList } from "@/components/MessageList";
-import { InputPanel } from "@/components/InputPanel";
-import { WelcomeScreen } from "@/components/WelcomeScreen";
-import { useChats } from "@/hooks/useChats";
-import { useMessages } from "@/hooks/useMessages";
-import { useAIChat } from "@/hooks/useAIChat";
-import { useToast } from "@/hooks/use-toast";
 import { User } from "@supabase/supabase-js";
 
 const Index = () => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-  const [currentChatId, setCurrentChatId] = useState<string | null>(null);
-  const [selectedModel, setSelectedModel] = useState("google/gemini-2.5-flash");
-  const [deepThinking, setDeepThinking] = useState(false);
-  const [webSearch, setWebSearch] = useState(false);
-  const [streamingContent, setStreamingContent] = useState("");
-  const [isStreaming, setIsStreaming] = useState(false);
-  
   const navigate = useNavigate();
-  const { toast } = useToast();
-  
-  console.log("Index render - user:", user, "loading:", loading); // ДОБАВЛЕНО
 
-  const { chats, loading: chatsLoading, createChat, deleteChat, renameChat } = useChats(user?.id);
-  const { messages, loading: messagesLoading, addMessage, setMessages } = useMessages(currentChatId);
-
-  console.log("Index render - chats:", chats, "messages:", messages); // ДОБАВЛЕНО
-
-  const { streamChat } = useAIChat({
-    onDelta: (text) => {
-      setStreamingContent((prev) => prev + text);
-    },
-    onDone: async () => {
-      if (streamingContent && currentChatId) {
-        await addMessage("assistant", streamingContent);
-        setStreamingContent("");
-      }
-      setIsStreaming(false);
-    },
-    model: selectedModel,
-    enableWebSearch: webSearch,
-  });
-
-  // Check auth state
   useEffect(() => {
-    console.log("Auth useEffect running"); // ДОБАВЛЕНО
     supabase.auth.getSession().then(({ data: { session } }) => {
-      console.log("getSession result:", session); // ДОБАВЛЕНО
       setUser(session?.user ?? null);
       setLoading(false);
       if (!session?.user) {
-        console.log("No user, redirecting to auth");
         navigate("/auth");
       }
     });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state change:", event, session);
-      setUser(session?.user ?? null);
-      if (!session?.user && event !== 'INITIAL_SESSION') {
-        navigate("/auth");
-      }
-    });
-
-    return () => subscription.unsubscribe();
   }, [navigate]);
 
   if (loading) {
-    console.log("Rendering loading state"); // ДОБАВЛЕНО
     return (
       <div className="flex h-screen w-full bg-background items-center justify-center">
         <div className="text-center">
@@ -84,7 +30,6 @@ const Index = () => {
   }
 
   if (!user) {
-    console.log("Rendering no user state"); // ДОБАВЛЕНО
     return (
       <div className="flex h-screen w-full bg-background items-center justify-center">
         <div className="text-center">
@@ -94,114 +39,34 @@ const Index = () => {
     );
   }
 
-  console.log("Rendering main app - user:", user.email); // ДОБАВЛЕНО
-
-  const handleStartChat = async (message: string) => {
-    if (!user) return;
-
-    // Create new chat with first message as title
-    const title = message.slice(0, 50) + (message.length > 50 ? "..." : "");
-    const newChat = await createChat(title);
-    
-    if (newChat) {
-      setCurrentChatId(newChat.id);
-      await handleSendMessage(message, newChat.id);
-    }
-  };
-
-  const handleSendMessage = async (content: string, chatId?: string) => {
-    const targetChatId = chatId || currentChatId;
-    if (!targetChatId || !user) return;
-
-    // Add user message
-    await addMessage("user", content);
-
-    // Start streaming AI response
-    setIsStreaming(true);
-    setStreamingContent("");
-
-    const allMessages = [
-      ...messages.map((m) => ({ role: m.role, content: m.content })),
-      { role: "user", content },
-    ];
-
-    await streamChat(allMessages);
-  };
-
-  const handleNewChat = () => {
-    setCurrentChatId(null);
-    setMessages([]);
-  };
-
-  const handleSelectChat = (chatId: string) => {
-    setCurrentChatId(chatId);
-  };
-
-  const handleDeleteChat = async (chatId: string) => {
-    await deleteChat(chatId);
-    if (currentChatId === chatId) {
-      handleNewChat();
-    }
-  };
-
-  const handleClearChat = () => {
-    if (currentChatId) {
-      handleDeleteChat(currentChatId);
-    }
-  };
-
-  const handleSignOut = async () => {
-    await supabase.auth.signOut();
-    navigate("/auth");
-  };
-
-  const showWelcome = !currentChatId && messages.length === 0;
-  const currentChat = chats.find((c) => c.id === currentChatId);
-
-  console.log("Rendering chat UI - showWelcome:", showWelcome, "currentChat:", currentChat); // ДОБАВЛЕНО
-
+  // ПРОСТЕЙШАЯ ГЛАВНАЯ СТРАНИЦА БЕЗ СЛОЖНЫХ КОМПОНЕНТОВ
   return (
     <div className="flex h-screen w-full bg-background">
-      <ChatSidebar
-        chats={chats}
-        currentChatId={currentChatId}
-        onNewChat={handleNewChat}
-        onSelectChat={handleSelectChat}
-        onDeleteChat={handleDeleteChat}
-        onRenameChat={renameChat}
-        user={user}
-        onSignOut={handleSignOut}
-      />
-
-      <div className="flex-1 flex flex-col min-w-0">
-        {!showWelcome && (
-          <>
-            <ChatHeader
-              chatTitle={currentChat?.title || "Новый чат"}
-              selectedModel={selectedModel}
-              onClearChat={handleClearChat}
-            />
-
-            <MessageList
-              messages={messages}
-              isLoading={isStreaming}
-              streamingContent={streamingContent}
-            />
-
-            <InputPanel
-              onSend={(msg) => handleSendMessage(msg)}
-              disabled={isStreaming}
-              selectedModel={selectedModel}
-              onModelChange={setSelectedModel}
-              deepThinking={deepThinking}
-              onDeepThinkingChange={setDeepThinking}
-              webSearch={webSearch}
-              onWebSearchChange={setWebSearch}
-            />
-          </>
-        )}
-
-        {showWelcome && <WelcomeScreen onStartChat={handleStartChat} />}
+      <div className="w-64 bg-sidebar-background p-4">
+        <h2 className="text-lg font-bold mb-4">Gudini Chat</h2>
+        <button 
+          onClick={() => supabase.auth.signOut().then(() => navigate("/auth"))}
+          className="w-full bg-red-500 text-white p-2 rounded"
+        >
+          Выйти
+        </button>
+      </div>
+      
+      <div className="flex-1 flex flex-col">
+        <div className="p-4 border-b">
+          <h1 className="text-xl font-bold">Главная страница</h1>
+          <p>Добро пожаловать, {user.email}!</p>
+        </div>
+        
+        <div className="flex-1 p-4">
+          <p>React работает! Ошибка CSS обойдена.</p>
+          <button 
+            onClick={() => alert('React работает!')}
+            className="bg-primary text-white p-2 rounded mt-4"
+          >
+            Тестовая кнопка
+          </button>
+        </div>
       </div>
     </div>
   );
