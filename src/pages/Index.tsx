@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { ChatSidebar } from "@/components/ChatSidebar";
 import { User } from "@supabase/supabase-js";
 
 const Index = () => {
@@ -39,18 +40,18 @@ const Index = () => {
     );
   }
 
-  // ПРОСТЕЙШАЯ ГЛАВНАЯ СТРАНИЦА БЕЗ СЛОЖНЫХ КОМПОНЕНТОВ
   return (
     <div className="flex h-screen w-full bg-background">
-      <div className="w-64 bg-sidebar-background p-4">
-        <h2 className="text-lg font-bold mb-4">Gudini Chat</h2>
-        <button 
-          onClick={() => supabase.auth.signOut().then(() => navigate("/auth"))}
-          className="w-full bg-red-500 text-white p-2 rounded"
-        >
-          Выйти
-        </button>
-      </div>
+      <ChatSidebar
+        chats={[]}
+        currentChatId={null}
+        onNewChat={() => console.log("new chat")}
+        onSelectChat={() => {}}
+        onDeleteChat={() => {}}
+        onRenameChat={() => {}}
+        user={user}
+        onSignOut={() => supabase.auth.signOut().then(() => navigate("/auth"))}
+      />
       
       <div className="flex-1 flex flex-col">
         <div className="p-4 border-b">
@@ -59,7 +60,7 @@ const Index = () => {
         </div>
         
         <div className="flex-1 p-4">
-          <p>React работает! Ошибка CSS обойдена.</p>
+          <p>ChatSidebar добавлен</p>
           <button 
             onClick={() => alert('React работает!')}
             className="bg-primary text-white p-2 rounded mt-4"
