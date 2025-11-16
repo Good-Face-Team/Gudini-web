@@ -10,8 +10,9 @@ export default function GoodFaceCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
+      // Для HashRouter получаем параметры из хэша
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const code = hashParams.get("code");
 
       if (!code) {
         toast({
@@ -35,7 +36,8 @@ export default function GoodFaceCallback() {
             body: new URLSearchParams({
               grant_type: "authorization_code",
               code: code,
-              redirect_uri: window.location.origin + "/#/goodface-callback",
+              // Для GitHub Pages используем полный URL
+              redirect_uri: "https://good-face-team.github.io/Gudini-web/#/goodface-callback",
               client_id:
                 "12566d9ce28b060e1fb61a8f1c51b121e3e855c8810b217101d9b6668cc979a5",
               client_secret:
@@ -64,52 +66,66 @@ export default function GoodFaceCallback() {
           throw new Error("Failed to get user data");
         }
 
-        // Create or login user in Supabase
-        const { data: existingUser } = await supabase
+        // Проверяем существует ли пользователь в Supabase
+        const { data: existingUser, error: userError } = await supabase
           .from('profiles')
-          .select('id')
+          .select('id, email')
           .eq('email', userData.email)
           .single();
 
-        if (!existingUser) {
-          // Sign up new user
-          const { error: signUpError } = await supabase.auth.signUp({
+        if (userError && userError.code !== 'PGRST116') {
+          throw userError;
+        }
+
+        if (existingUser) {
+          // Если пользователь существует, создаем сессию через magic link
+          const { error: signInError } = await supabase.auth.signInWithOtp({
             email: userData.email,
-            password: Math.random().toString(36).slice(-8) + "Aa1!", // Random password
+          });
+
+          if (signInError) throw signInError;
+
+          toast({
+            title: "Добро пожаловать!",
+            description: "Проверьте вашу почту для входа",
+          });
+        } else {
+          // Регистрируем нового пользователя
+          const { data: authData, error: signUpError } = await supabase.auth.signUp({
+            email: userData.email,
+            password: Math.random().toString(36).slice(-8) + "Aa1!",
             options: {
               data: {
                 full_name: `${userData.first_name} ${userData.last_name}`,
+                avatar_url: userData.avatar,
               },
             },
           });
 
           if (signUpError) throw signUpError;
-        }
 
-        // Sign in
-        const { error: signInError } = await supabase.auth.signInWithPassword({
-          email: userData.email,
-          password: Math.random().toString(36).slice(-8) + "Aa1!",
-        });
+          // Сразу логиним пользователя после регистрации
+          if (authData.user) {
+            const { error: signInError } = await supabase.auth.signInWithPassword({
+              email: userData.email,
+              password: Math.random().toString(36).slice(-8) + "Aa1!",
+            });
 
-        if (signInError) {
-          // If password doesn't match, update it
-          const { error: updateError } = await supabase.auth.updateUser({
-            password: Math.random().toString(36).slice(-8) + "Aa1!",
+            if (signInError) throw signInError;
+          }
+
+          toast({
+            title: "Добро пожаловать!",
+            description: "Аккаунт успешно создан",
           });
-          if (updateError) throw updateError;
         }
 
-        toast({
-          title: "Добро пожаловать!",
-          description: "Вы успешно вошли через Good Face ID",
-        });
         navigate("/");
       } catch (error: any) {
         console.error("Good Face auth error:", error);
         toast({
           title: "Ошибка авторизации",
-          description: error.message,
+          description: error.message || "Произошла ошибка при авторизации",
           variant: "destructive",
         });
         navigate("/auth");
