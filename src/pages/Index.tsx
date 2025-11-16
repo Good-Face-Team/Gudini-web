@@ -200,7 +200,6 @@ const Index = () => {
             <InputPanel
               onSend={(msg) => handleSendMessage(msg)}
               disabled={isStreaming}
-              onModelChange={setSelectedModel}
               deepThinking={deepThinking}
               onDeepThinkingChange={setDeepThinking}
               webSearch={webSearch}
