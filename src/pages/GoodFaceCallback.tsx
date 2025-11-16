@@ -14,18 +14,11 @@ export default function GoodFaceCallback() {
       console.log("Search:", window.location.search);
       console.log("Hash:", window.location.hash);
       
-      // Пробуем разные варианты получения кода
+      // Для GitHub Pages код приходит в search параметрах
       const searchParams = new URLSearchParams(window.location.search);
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const code = searchParams.get("code");
       
-      const codeFromSearch = searchParams.get("code");
-      const codeFromHash = hashParams.get("code");
-      
-      const code = codeFromSearch || codeFromHash;
-      
-      console.log("Code from search:", codeFromSearch);
-      console.log("Code from hash:", codeFromHash);
-      console.log("Final code:", code);
+      console.log("Code from URL:", code);
 
       if (!code) {
         toast({
@@ -50,10 +43,8 @@ export default function GoodFaceCallback() {
               grant_type: "authorization_code",
               code: code,
               redirect_uri: "https://good-face-team.github.io/Gudini-web/#/goodface-callback",
-              client_id:
-                "12566d9ce28b060e1fb61a8f1c51b121e3e855c8810b217101d9b6668cc979a5",
-              client_secret:
-                "495c3f7564d1fe39ee64ab24d003843b588551803f080d902d2d90707903ec82",
+              client_id: "1d25308a7b6e62c731c16f20e14743469d77ce93dc713d51fc22f9a05d55b664",
+              client_secret: "495c3f7564d1fe39ee64ab24d003843b588551803f080d902d2d90707903ec82",
             }),
           }
         );
