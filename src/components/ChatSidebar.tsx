@@ -47,7 +47,7 @@ export function ChatSidebar({
   );
 
   return (
-    <aside className="w-64 border-r border-border bg-sidebar flex flex-col h-screen">
+    <div className="w-64 border-r border-border bg-sidebar-background flex flex-col h-full">
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between mb-4">
@@ -56,7 +56,7 @@ export function ChatSidebar({
         
         <Button
           onClick={onNewChat}
-          className="w-full bg-primary hover:bg-primary-hover text-primary-foreground transition-fast"
+          className="w-full bg-primary hover:bg-primary-hover text-primary-foreground"
           size="sm"
         >
           <MessageSquarePlus className="w-4 h-4 mr-2" />
@@ -72,24 +72,23 @@ export function ChatSidebar({
             placeholder="Поиск чатов..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9 bg-background/50 border-input-border focus:ring-2 focus:ring-ring transition-fast"
+            className="pl-9 bg-background/50 border-input-border"
           />
         </div>
       </div>
 
       {/* Chat List */}
-      <ScrollArea className="flex-1" style="display: block;">
+      <div className="flex-1 overflow-auto">
         <div className="p-2 space-y-1">
           {filteredChats.map((chat, index) => (
             <button
               key={chat.id}
               onClick={() => onSelectChat(chat.id)}
               className={cn(
-                "w-full text-left p-3 rounded-lg transition-fast group relative stagger-item",
+                "w-full text-left p-3 rounded-lg transition-colors",
                 "hover:bg-sidebar-hover",
                 currentChatId === chat.id ? "bg-sidebar-hover" : ""
               )}
-              style={{ animationDelay: `${index * 0.05}s` }}
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 min-w-0">
@@ -104,7 +103,7 @@ export function ChatSidebar({
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="opacity-0 group-hover:opacity-100 transition-fast h-6 w-6 shrink-0"
+                      className="opacity-0 group-hover:opacity-100 h-6 w-6 shrink-0"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <MoreVertical className="w-3 h-3" />
@@ -119,7 +118,10 @@ export function ChatSidebar({
                       <Download className="w-4 h-4 mr-2" />
                       Экспорт
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-destructive">
+                    <DropdownMenuItem 
+                      className="text-destructive"
+                      onClick={() => onDeleteChat(chat.id)}
+                    >
                       <Trash2 className="w-4 h-4 mr-2" />
                       Удалить
                     </DropdownMenuItem>
@@ -129,20 +131,30 @@ export function ChatSidebar({
             </button>
           ))}
         </div>
-      </ScrollArea>
+      </div>
 
       {/* User Profile */}
       <div className="p-3 border-t border-border">
-        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-hover transition-fast cursor-pointer">
+        <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-hover transition-colors cursor-pointer">
           <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-semibold">
-            У
+            {user.email?.charAt(0).toUpperCase() || 'У'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate">Пользователь</p>
+            <p className="text-sm font-medium truncate">
+              {user.email || 'Пользователь'}
+            </p>
             <p className="text-xs text-muted-foreground">Настройки</p>
           </div>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onSignOut}
+            className="h-8 w-8"
+          >
+            <LogOut className="w-4 h-4" />
+          </Button>
         </div>
       </div>
-    </aside>
+    </div>
   );
 }
