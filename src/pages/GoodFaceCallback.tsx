@@ -10,8 +10,9 @@ export default function GoodFaceCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      const params = new URLSearchParams(window.location.search);
-      const code = params.get("code");
+      // Получаем код из хэш-параметров (после редиректа из HTML файла)
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const code = hashParams.get("code");
 
       if (!code) {
         toast({
@@ -35,8 +36,8 @@ export default function GoodFaceCallback() {
             body: new URLSearchParams({
               grant_type: "authorization_code",
               code: code,
-              // Для GitHub Pages используем полный URL
-              redirect_uri: "https://good-face-team.github.io/Gudini-web/#/goodface-callback",
+              // Используем тот же redirect_uri что и в Auth.tsx
+              redirect_uri: "https://good-face-team.github.io/Gudini-web/goodface-callback.html",
               client_id:
                 "12566d9ce28b060e1fb61a8f1c51b121e3e855c8810b217101d9b6668cc979a5",
               client_secret:
