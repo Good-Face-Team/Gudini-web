@@ -76,8 +76,8 @@ export default function Auth() {
   };
 
   const handleGoodFaceAuth = () => {
-    const clientId = "1d25308a7b6e62c731c16f20e14743469d77ce93dc713d51fc22f9a05d55b664";
-    const redirectUri = encodeURIComponent(window.location.origin + "/goodface-callback");
+    const clientId = "12566d9ce28b060e1fb61a8f1c51b121e3e855c8810b217101d9b6668cc979a5";
+    const redirectUri = "https://good-face-team.github.io/Gudini-web/#/goodface-callback";
     const authUrl = `https://id.goodfaceteam.ru/public/authorize.php?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
     window.location.href = authUrl;
   };
