@@ -11,9 +11,9 @@ export default function GoodFaceCallback() {
   useEffect(() => {
     const handleCallback = async () => {
       // Получаем код из хэш-параметров (после редиректа из HTML файла)
-      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+       const hashParams = new URLSearchParams(window.location.hash.substring(1));
       const code = hashParams.get("code");
-
+  
       if (!code) {
         toast({
           title: "Ошибка авторизации",
