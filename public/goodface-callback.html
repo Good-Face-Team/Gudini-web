@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+    <script>
+        // Получаем код из URL параметров
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        
+        if (code) {
+            // Перенаправляем обратно в приложение с кодом в хэше
+            window.location.href = `https://good-face-team.github.io/Gudini-web/#/goodface-callback?code=${code}`;
+        } else {
+            window.location.href = 'https://good-face-team.github.io/Gudini-web/#/auth';
+        }
+    </script>
+</head>
+<body>
+    <p>Перенаправление...</p>
+</body>
+</html>
