@@ -10,10 +10,23 @@ export default function GoodFaceCallback() {
 
   useEffect(() => {
     const handleCallback = async () => {
-      // Получаем код из хэш-параметров (после редиректа из HTML файла)
-       const hashParams = new URLSearchParams(window.location.hash.substring(1));
-      const code = hashParams.get("code");
-  
+      console.log("Full URL:", window.location.href);
+      console.log("Search params:", window.location.search);
+      console.log("Hash:", window.location.hash);
+      
+      // Пробуем получить код из разных мест
+      const searchParams = new URLSearchParams(window.location.search);
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      
+      const codeFromSearch = searchParams.get("code");
+      const codeFromHash = hashParams.get("code");
+      
+      const code = codeFromSearch || codeFromHash;
+      
+      console.log("Code from search:", codeFromSearch);
+      console.log("Code from hash:", codeFromHash);
+      console.log("Final code:", code);
+
       if (!code) {
         toast({
           title: "Ошибка авторизации",
@@ -36,7 +49,6 @@ export default function GoodFaceCallback() {
             body: new URLSearchParams({
               grant_type: "authorization_code",
               code: code,
-              // Используем тот же redirect_uri что и в Auth.tsx
               redirect_uri: "https://good-face-team.github.io/Gudini-web/goodface-callback.html",
               client_id:
                 "12566d9ce28b060e1fb61a8f1c51b121e3e855c8810b217101d9b6668cc979a5",
@@ -47,8 +59,10 @@ export default function GoodFaceCallback() {
         );
 
         const tokenData = await tokenResponse.json();
+        console.log("Token response:", tokenData);
+        
         if (!tokenData.access_token) {
-          throw new Error("Failed to get access token");
+          throw new Error("Failed to get access token: " + JSON.stringify(tokenData));
         }
 
         // Get user data
@@ -62,8 +76,10 @@ export default function GoodFaceCallback() {
         );
 
         const userData = await userResponse.json();
+        console.log("User data:", userData);
+        
         if (!userData.id) {
-          throw new Error("Failed to get user data");
+          throw new Error("Failed to get user data: " + JSON.stringify(userData));
         }
 
         // Create or login user in Supabase
